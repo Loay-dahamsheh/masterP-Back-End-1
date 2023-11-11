@@ -1,0 +1,420 @@
+const Dashboard = require('../Models/dashboardModel');
+var multer  = require('multer');
+const path = require('path');
+const bodyParser = require('body-parser');
+
+
+const storage = multer.diskStorage({
+  destination: 'C:/Users/Orange/Desktop/masterP-Back-End 1/client/src/assets/uploads', 
+  filename: function (req, file, cb) {
+    cb(null, 'image-' + Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
+      return cb(new Error('Please upload a valid image file'));
+    }
+    cb(null, true);
+  }
+}).array('image'); 
+
+
+//.............................................Dashboard product.........................................................................
+
+
+
+const createproduct = async (req, res) => {
+    try {
+      upload(req, res, async function (err) {
+        if (err) {
+          return res.status(400).json({ success: false, error: err.message });
+        }
+        
+        const { product_name, product_detail, price, counts, category_id } = req.body;
+        const images = req.files.map(file => file.filename);
+        
+    
+        await Dashboard.createproduct(product_name, product_detail, images, price, counts, category_id);
+    
+        res.status(201).json({ success: true, message: 'Product added successfully' });
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ success: false, error: 'Product added failed' });
+    }
+  };
+  
+    
+  
+  
+    const productdetail = async (req, res, next) => {
+      const productId = req.params.id;
+      try {
+  
+      
+        
+        const product = await Dashboard.productdetail(productId);
+    
+        const modifiedResponse = {
+          success: true,
+          product: product.map(item => {
+            return {
+              id: item.id,
+              name: item.product_name,
+              details: item.product_detail,
+              category: item.category,
+              images: JSON.parse(item.image), 
+              price: item.price,
+              counts: item.counts
+            };
+          })
+        };
+        res.status(200).json(modifiedResponse); 
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, error: 'Error in getting product' });
+      }
+    };
+  
+  
+  
+  
+    const updateproduct = async (req, res, next) => {
+      try {
+        upload(req, res, async function (err) {
+          if (err) {
+            return res.status(400).json({ success: false, error: err.message });
+          }
+          
+          try {
+            const { product_name, product_detail, price, counts, category_id } = req.body;
+            const image = req.file ? req.file.filename : null;
+            const productId = req.params.id;
+            console.log(req.file);
+            
+            
+            await Dashboard.updateproduct(productId, product_name, product_detail, image, price, counts, category_id);
+            
+            res.status(200).json({ success: true, message: 'Product updated successfully' });
+          } catch (err) {
+            console.error(err);
+            res.status(500).json({ success: false, error: 'Error updating product' });
+          }
+        });
+      } catch (err) {
+        console.error(err);
+        res.status(400).json({ success: false, error: 'Product update failed' });
+      }
+    };
+    
+  
+    const deleteproduct = async(req,res,next) =>{
+      try{
+        const{is_deleted} = req.body;
+        const productId = req.params.id;
+        await Dashboard.deleteproduct(productId,is_deleted);
+        res.status(200).json({ success: true, message: 'Product deleted successfully' });
+      } catch(err){
+        console.error(err);
+        res.status(400).json({ success: false, error: 'Product deleted failed' });
+      }
+    }
+
+
+
+    
+    
+      const allproducts = async (req, res, next) => {
+    
+        try {
+          const product = await Dashboard.allproducts();
+      
+          const modifiedResponse = {
+            product: product.map(item => {
+              return {
+                id: item.id,
+                name: item.product_name,
+                details: item.product_detail,
+                category: item.category,
+                images: JSON.parse(item.image), 
+                price: item.price,
+                counts: item.counts
+              };
+            })
+          };
+          res.status(200).json(modifiedResponse); 
+        } 
+        catch (err) {
+            console.error(err);
+            res.status(400).json({ success: false, error: 'Error in getting products' });
+          }
+        };
+
+
+
+        
+        
+
+
+
+
+
+
+
+//.............................................Dashboard category.........................................................................
+
+
+
+
+
+
+
+
+        
+
+        const createcategory = async (req, res) => {
+          try {
+            upload(req, res, async function (err) {
+              if (err) {
+                return res.status(400).json({ success: false, error: err.message });
+              }
+              
+              const { category, /* other category fields */ } = req.body;
+              const catImage = req.file ? req.file.filename : null;
+              
+              await Dashboard.createCategory(category, catImage /* other category fields */);
+          
+              res.status(201).json({ success: true, message: 'Category added successfully' });
+            });
+          } catch (err) {
+            console.error(err);
+            res.status(400).json({ success: false, error: 'Category added failed' });
+          }
+        };
+        
+        const categorydetail = async (req, res, next) => {
+          const categoryId = req.params.id;
+          try {
+            const category = await Dashboard.categorydetail(categoryId);
+        
+            const modifiedResponse = {
+              success: true,
+              category: category.map(item => {
+                return {
+                  id: item.id,
+                  name: item.category,
+                  images: JSON.parse(item.cat_image), // Assuming cat_image is a JSON string containing image filenames
+                  // Add other category details here if needed
+                };
+              })
+            };
+            res.status(200).json(modifiedResponse);
+          } catch (err) {
+            console.error(err);
+            res.status(500).json({ success: false, error: 'Error in getting category' });
+          }
+        };
+
+
+
+
+
+        const updatecategory = async (req, res, next) => {
+          try {
+            upload(req, res, async function (err) {
+              if (err) {
+                return res.status(400).json({ success: false, error: err.message });
+              }
+              
+              try {
+                const { category } = req.body;
+                const catImage = req.file ? req.file.filename : null;
+                const categoryId = req.params.id;
+                
+                await Dashboard.updatecategory(categoryId, category, catImage /* other category fields */);
+                
+                res.status(200).json({ success: true, message: 'Category updated successfully' });
+              } catch (err) {
+                console.error(err);
+                res.status(500).json({ success: false, error: 'Error updating category' });
+              }
+            });
+          } catch (err) {
+            console.error(err);
+            res.status(400).json({ success: false, error: 'Category update failed' });
+          }
+        };
+        
+
+
+
+        const deletecategory = async (req, res, next) => {
+          try {
+            const categoryId = req.params.id;
+            await Dashboard.deletecategory(categoryId);
+            res.status(200).json({ success: true, message: 'Category deleted successfully' });
+          } catch (err) {
+            console.error(err);
+            res.status(400).json({ success: false, error: 'Category deletion failed' });
+          }
+        };
+
+//get categories after delete some from above
+        const allcategories = async (req, res, next) => {
+          try {
+            const categories = await Dashboard.allcategories();
+        
+            const modifiedResponse = {
+              categories: categories.map(item => {
+                return {
+                  id: item.id,
+                  name: item.category,
+                  images: JSON.parse(item.cat_image), // Assuming cat_image is a JSON string containing image filenames
+                  // Add other category details here if needed
+                };
+              })
+            };
+            res.status(200).json(modifiedResponse);
+          } catch (err) {
+            console.error(err);
+            res.status(400).json({ success: false, error: 'Error in getting categories' });
+          }
+        };
+        
+
+//.............................................Dashboard Employee.........................................................................
+
+
+        const addEmployee = async (req, res) => {
+          try {
+            // Handle file uploads and request data as needed
+            const { emp_name, emp_position } = req.body;
+            const emp_img = req.files ? req.files.map(file => file.filename) : null;
+        
+            await Dashboard.addEmployee(emp_name, emp_img, emp_position);
+        
+            res.status(201).json({ success: true, message: 'Employee added successfully' });
+          } catch (err) {
+            console.error(err);
+            res.status(400).json({ success: false, error: 'Employee added failed' });
+          }
+        };
+        
+
+
+
+        const getEmployeeDetails = async (req, res) => {
+          try {
+            const employeeId = req.params.id;
+            const employee = await Dashboard.getEmployeeDetails(employeeId);
+        
+            if (!employee) {
+              // Handle the case where the employee is not found
+              res.status(404).json({ error: 'Employee not found' });
+              return;
+            }
+        
+            const modifiedResponse = {
+              id: employee.id,
+              name: employee.emp_name,
+              images: JSON.parse(employee.emp_img), // Assuming emp_img is a JSON string containing image filenames
+              position: employee.emp_position,
+              // Add other employee details here if needed
+            };
+        
+            res.status(200).json({ success: true, employee: modifiedResponse });
+          } catch (err) {
+            console.error(err);
+            res.status(500).json({ success: false, error: 'Error in getting employee' });
+          }
+        };
+
+
+
+        const updateEmployee = async (req, res) => {
+          try {
+            const employeeId = req.params.id;
+            const { emp_name, emp_position } = req.body;
+            const emp_img = req.file ? req.file.filename : null;
+        
+            await Dashboard.updateEmployee(employeeId, emp_name, emp_img, emp_position);
+        
+            res.status(200).json({ success: true, message: 'Employee updated successfully' });
+          } catch (err) {
+            console.error(err);
+            res.status(500).json({ success: false, error: 'Error updating employee' });
+          }
+        };
+
+
+
+        const deleteemployee = async (req, res) => {
+          
+
+          try {
+            
+            const employeeId = req.params.id;
+        
+            await Dashboard.deleteemployee(employeeId);
+
+            
+        
+            res.status(200).json({ success: true, message: 'Employee deleted successfully' });
+            
+          } catch (err) {
+            console.error(err);
+            res.status(400).json({ success: false, error: 'Employee deletion failed' });
+          }
+        };
+
+        
+
+
+        const getAllEmployees = async (req, res) => {
+          try {
+            const employees = await Dashboard.getAllEmployees();
+        
+            const modifiedResponse = {
+              employees: employees.map(item => {
+                return {
+                  id: item.id,
+                  name: item.emp_name,
+                  image: JSON.parse(item.emp_img), 
+                  position: item.emp_position
+                };
+              })
+            };
+        
+            res.status(200).json(modifiedResponse);
+          } catch (err) {
+            console.error(err);
+            res.status(400).json({ success: false, error: 'Error in getting employees' });
+          }
+        };
+
+
+    module.exports = {
+        createproduct,
+        productdetail,
+        updateproduct,
+        deleteproduct,
+        allproducts,
+
+
+        createcategory,
+        categorydetail,
+        updatecategory,
+        deletecategory,
+        allcategories,
+        
+        
+        addEmployee,
+        getEmployeeDetails,
+        updateEmployee,
+        deleteemployee,
+        getAllEmployees
+
+      };
