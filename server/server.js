@@ -26,7 +26,7 @@ const contactusRoute = require('./Routes/contactusRoute');
 const reactionRoute = require('./Routes/reactionRoute');
 const userprofileRoute = require('./Routes/userprofileRoute');
 const shoppingRoute = require('./Routes/shoppingRoute')
-const google_router = require("./Routes/googleRoute");
+const googleRoute = require("./Routes/googleRoute");
 
 
 
@@ -35,7 +35,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use(cookieParser());
-app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
+app.use(session({ secret: "cats", resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -49,7 +49,7 @@ app.use(contactusRoute);
 app.use(reactionRoute);
 app.use(userprofileRoute);
 app.use(shoppingRoute);
-app.use(google_router);
+app.use(googleRoute);
 
 
 

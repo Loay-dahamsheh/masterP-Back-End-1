@@ -2,8 +2,8 @@ const db = require('../config');
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 // require("../Middleware/authorization");
-require("../Middleware/auth")
-require("dotenv").config();
+require("../Middleware/auth");
+
 
 
 
@@ -24,10 +24,17 @@ function isLoggedIn(req, res, next) {
     successRedirect: "/protected",
     failureRedirect: "/auth/google/failure",
   });
+
+
+  
+  
+    
+
+  
   
   exports.protected =
     (isLoggedIn,
-    async (req, res) => {
+    async  (req, res) => {
         
       if (req.user) {
         try {
@@ -42,17 +49,17 @@ function isLoggedIn(req, res, next) {
             const payload = {
               username: username,
               email: email,
-              role: emailCheck.rows[0].user_role,
-              user_id: emailCheck.rows[0].user_id,
+              role_id: emailCheck.rows[0].role_id,
+              id: emailCheck.rows[0].id,
             };
   
             const secretKey = process.env.SECRET_KEY;
-            const token = jwt.sign(payload, secretKey, { expiresIn: "24h" });
+            const token = jwt.sign(payload, secretKey, { expiresIn: "7d" });
             res.status(200).json({
               message: "User logged in successfully",
               token: token,
             });
-            console.log(token)
+            // console.log(token)
           } else {
             const role_id = "1";
             
@@ -79,7 +86,7 @@ function isLoggedIn(req, res, next) {
             };
   
             const secretKey = process.env.SECRET_KEY;
-            const token = jwt.sign(payload, secretKey, { expiresIn: "24h" });
+            const token = jwt.sign(payload, secretKey, { expiresIn: "7d" });
             res.status(200).json({
               logmessage: "User added successfully",
               token: token,

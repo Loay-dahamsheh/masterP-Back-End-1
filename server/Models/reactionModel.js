@@ -35,7 +35,7 @@ Reaction.getcomments = async (productId) => {
         SELECT reactions.comment, users.username
         FROM reactions
         INNER JOIN users ON users.id = reactions.user_id
-        WHERE reactions.product_id = $1
+        WHERE reactions.product_id = $1 and reactions.is_deleted=false
       `, [productId]);
   
       return result.rows;
@@ -48,7 +48,7 @@ Reaction.getcomments = async (productId) => {
 
   Reaction.updatecomment = async (commentId, newComment) => {
     try {
-      const result = await db.query('UPDATE reactions SET comment = $1 WHERE id = $2 RETURNING *;', [newComment, commentId]);
+      const result = await db.query('UPDATE reactions SET comment = $1 WHERE id = $2 RETURNING *;', [commentId, newComment]);
   
       if (result.rows.length > 0) {
         return result.rows[0];
@@ -65,7 +65,7 @@ Reaction.getcomments = async (productId) => {
 
   Reaction.deletecomment = async (commentId) => {
     try {
-      const result = await db.query('DELETE FROM reactions WHERE id = $1 RETURNING *;', [commentId]);
+      const result = await db.query('update reactions SET is_deleted = true WHERE id = $1 RETURNING *;', [commentId]);
   
       if (result.rows.length > 0) {
         return result.rows[0];

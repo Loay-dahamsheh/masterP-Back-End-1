@@ -1,10 +1,12 @@
 const Reaction = require('../Models/reactionModel');
 
 const addrate = async (req, res) => {
-    const { rate, userId } = req.body;
+    const { rate } = req.body;
     const productId = req.params.id;
+    const userID = req.user.id
+
     try {
-        await Reaction.addrate(productId, userId, rate);
+        await Reaction.addrate(productId, userID, rate);
         res.status(200).json({ success: true, message: 'your rate added successfully' });
     } catch (error) {
         console.error(error);
@@ -15,11 +17,12 @@ const addrate = async (req, res) => {
 
 
 const addcomment = async (req, res) => {
-    const {comment, userId} = req.body;
+    const {comment} = req.body;
+    const userID = req.user.id
     const productId = req.params.id;
     // const userID = 38;
     try{
-        await Reaction.addcomment(productId,userId,comment);
+        await Reaction.addcomment(productId,userID,comment);
         res.status(200).json({ success: true, message: 'your comment added successfully' });
     }catch (error) {
         console.error(error);
@@ -32,6 +35,9 @@ const addcomment = async (req, res) => {
 
 const getcomments = async (req, res) => {
     const productId = req.params.id;
+    //const userID = req.user.id
+    // const commentId = req.params.id;
+
     try {
       const comments = await Reaction.getcomments(productId);
       res.status(200).json(comments);
@@ -48,9 +54,10 @@ const getcomments = async (req, res) => {
     const commentId = req.params.id;
         // const userID = 38;
     const { newComment } = req.body; // Assuming you'll send the updated comment in the request body
-  
+    const userID = req.user.id
+    //const productId = req.params.id;
     try {
-      const updatedComment = await Reaction.updatecomment(commentId, newComment);
+      const updatedComment = await Reaction.updatecomment(newComment,commentId,userID);
       res.status(200).json(updatedComment);
     } catch (err) {
       console.error(err);
@@ -62,9 +69,10 @@ const getcomments = async (req, res) => {
 
   const deletecomment = async (req, res) => {
     const commentId = req.params.id;
-  
+    const userID = req.user.id
+
     try {
-      const result = await Reaction.deletecomment(commentId);
+      const result = await Reaction.deletecomment(commentId, userID);
       res.status(200).json({ success: true, message: 'Comment deleted successfully' });
     } catch (err) {
       console.error(err);

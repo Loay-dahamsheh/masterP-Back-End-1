@@ -4,8 +4,10 @@ const usercontroller = require('../Controllers/userController');
 const middleware = require('../Middleware/authorization');
 
 
+
 router.post('/register', usercontroller.register);
 router.post('/login', usercontroller.login);
-router.get('/protected', middleware.authorize, usercontroller.cont);
+router.get('/j/protected', middleware.authorize, usercontroller.cont);
+router.post('/admin-login', usercontroller.adminLogin);
 
 module.exports = router;

@@ -13,7 +13,7 @@ const addtocart = async (req, res) => {
         number = count;
       }
       const productId = req.params.id;
-      const userID = 10;
+      const userID = req.user.id;
     
 
       await Shopping.addtocart(productId, userID, number);
@@ -30,7 +30,7 @@ const addtocart = async (req, res) => {
 const getcartproducts = async (req, res, next) => {
 
     try {
-      const userID = 10;
+      const userID = req.user.id;
       const shoppingcart = await Shopping.getcartproducts(userID);
 
       const modifiedResponse = {
@@ -61,7 +61,8 @@ const getcartproducts = async (req, res, next) => {
     const deleteproduct = async (req, res) => {
         try {
             const productId = req.params.id;
-            const userID = 10;
+            const userID = req.user.id;
+
   
     
           await Shopping.deleteproduct(productId,userID);
@@ -80,7 +81,7 @@ const getcartproducts = async (req, res, next) => {
 
     const totalprice = async (req, res) => {
         try {
-          const userID = 10;
+          const userID = req.user.id;
           const total =  await Shopping.totalprice(userID);
     
             res.status(200).json({ success: true, total });
@@ -94,7 +95,7 @@ const getcartproducts = async (req, res, next) => {
     const createCheckoutSession = async (req, res) => {
         try {
         //   const userID = req.user.id;
-        const userID = 10
+          const userID = req.user.id
           const cartProducts = await Shopping.getcartproducts(userID); 
           const totalPriceResult = await Shopping.totalprice(userID); 
       
@@ -138,10 +139,12 @@ const getcartproducts = async (req, res, next) => {
 
       async function postbooking(req, res) {
     
-        const { product_id, user_id, date, time, phone_number, location } = req.body;
+        const { productId, userID, date, time, phone_number, location } = req.body;
         //console.log(id, name, email, message)
         try {
-            const result = await Shopping.bookinfo(product_id, user_id, date, time, phone_number, location);
+          const productId = req.params.id;
+            const userID = req.user.id;
+            const result = await Shopping.bookinfo(productId, userID, date, time, phone_number, location);
             //console.log(result);
             res.status(201).json({ message: 'booking saved successfully!' });
         } catch (error) {
@@ -154,8 +157,9 @@ const getcartproducts = async (req, res, next) => {
 
       async function getbooking(req, res){   
         try{
-            console.log("getbooking controller");
-            const get = await Shopping.gatall();
+          const userID = req.user.id;
+            //console.log("getbooking controller");
+            const get = await Shopping.gatall(userID);
             res.status(200).json(get);
         }catch(error){
             res.status(500).json(error);

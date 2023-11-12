@@ -50,7 +50,7 @@ async function login(req, res){
                     if (error) {
                         res.status(400).json('email not found');
                     } else if (result) {
-                        const accessToken = jwt.sign({id : value.id, username : value.username, email : value.email},process.env.SECRET_KEY, {expiresIn: '1h'});
+                        const accessToken = jwt.sign({id : value.id, username : value.username, email : value.email},process.env.SECRET_KEY, {expiresIn: '7d'});
                         res.cookie('token', accessToken, { httpOnly: true });
                         res.status(200).json(accessToken);
                     } else {
@@ -73,8 +73,50 @@ function cont(req, res){
 };
 
 
+
+
+async function adminLogin(req, res) {
+    try {
+      const { email, password } = req.body;
+      const valid = validation("anything", email, password);
+  
+      if (valid) {
+        const getUser = user.login(email);
+        getUser
+          .then((value) => {
+            // Compare the plaintext password directly (assuming value.password is the stored plaintext password)
+            if (password === value.password) {
+              if (value.role_id === 2) {
+                // Check if the user has admin role (role_id = 2)
+                const accessToken = jwt.sign(
+                  { id: value.id, username: value.username, email: value.email },
+                  process.env.SECRET_KEY,
+                  { expiresIn: '7d' }
+                );
+                res.cookie('token', accessToken, { httpOnly: true });
+                res.status(200).json(accessToken);
+              } else {
+                res.status(403).json('Access forbidden. User does not have admin privileges.');
+              }
+            } else {
+              res.status(400).json('Incorrect password');
+            }
+          })
+          .catch((error) => {
+            res.status(400).json(error.detail);
+          });
+      } else {
+        res.status(400).json({ error: 'Values are not valid' });
+      }
+    } catch (error) {
+      res.status(500).json('Error in admin login');
+    }
+  }
+
+
 module.exports = {
     register,
     login,
     cont,
+    adminLogin
 };

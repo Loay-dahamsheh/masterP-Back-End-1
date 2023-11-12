@@ -63,7 +63,7 @@ Shopping.addtocart = async (productId, user_id, count = 1) => {
 
 Shopping.getcartproducts = async (userID) => {
     try {
-        const result = await db.query('SELECT shopping_cart.id, products.product_name, shopping_cart.total_price, products.image, categories.category FROM shopping_cart INNER JOIN products ON products.id = shopping_cart.product_id  INNER JOIN categories ON categories.id = products.category_id WHERE shopping_cart.user_id = $1 ;',[userID]);
+        const result = await db.query('SELECT shopping_cart.id, products.product_name, shopping_cart.total_price, products.image, categories.category FROM shopping_cart INNER JOIN products ON products.id = shopping_cart.product_id  INNER JOIN categories ON categories.id = products.category_id WHERE shopping_cart.user_id = $1 and shopping_cart.is_deleted = false;',[userID]);
         return result.rows;
     } catch (error) {
         console.error(error);
@@ -76,7 +76,7 @@ Shopping.getcartproducts = async (userID) => {
 
 Shopping.deleteproduct = async (productId) => {
     try {
-      const result = await db.query('delete from shopping_cart WHERE id = $1', [productId]);
+      const result = await db.query('update shopping_cart SET is_deleted = true WHERE id = $1 RETURNING *;', [productId]);
       return 'done';
     } catch (err) {
       throw err;
@@ -102,7 +102,7 @@ Shopping.totalprice = async (userID) => {
 Shopping.checkconfirm = async (userID) => {
     try {
      
-      const result = await db.query('UPDATE shopping_cart SET is_deleted = TRUE  WHERE user_id = $1', [userID]);
+      const result = await db.query('UPDATE shopping_cart SET is_pay = TRUE  WHERE user_id = $1', [userID]);
       return result.rows;
     } catch (err) {
       throw err;
@@ -112,9 +112,9 @@ Shopping.checkconfirm = async (userID) => {
 
 
 
-  Shopping.bookinfo = async (product_id, user_id, date, time, phone_number, location) => {
+  Shopping.bookinfo = async (productId, userID, date, time, phone_number, location) => {
     try {
-        const result = await db.query(`INSERT INTO shopping_cart (product_id, user_id, date, time, phone_number,location) VALUES ($1, $2, $3, $4, $5, $6)`, [product_id, user_id, date, time, phone_number, location]);
+        const result = await db.query(`INSERT INTO shopping_cart (product_id, user_id, date, time, phone_number,location) VALUES ($1, $2, $3, $4, $5, $6)`, [productId, userID, date, time, phone_number, location]);
     } catch (error) {
         console.log(error);
         throw error;
@@ -123,11 +123,11 @@ Shopping.checkconfirm = async (userID) => {
 
 
 
-  Shopping.gatall = async () => {
+  Shopping.gatall = async (userID) => {
     try{
-        const query = 'select * from shopping_cart';
-        const result = await db.query(query);
-        console.log(result);
+        const query = 'select * from shopping_cart where user_id = $1';
+        const result = await db.query(query,[userID]);
+        //console.log(result);
         return result.rows;
     }catch(error){
         return error;
