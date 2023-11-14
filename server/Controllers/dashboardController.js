@@ -34,10 +34,10 @@ const createproduct = async (req, res) => {
         }
         
         const { product_name, product_detail, price, counts, category_id } = req.body;
-        const images = req.files.map(file => file.filename);
+        const image = req.file ? req.file.filename : null;
         
     
-        await Dashboard.createproduct(product_name, product_detail, images, price, counts, category_id);
+        await Dashboard.createproduct(product_name, product_detail, image, price, counts, category_id);
     
         res.status(201).json({ success: true, message: 'Product added successfully' });
       });
@@ -183,9 +183,9 @@ const createproduct = async (req, res) => {
               }
               
               const { category, /* other category fields */ } = req.body;
-              const catImage = req.file ? req.file.filename : null;
+              const image = req.file ? req.file.filename : null;
               
-              await Dashboard.createCategory(category, catImage /* other category fields */);
+              await Dashboard.createCategory(category, image /* other category fields */);
           
               res.status(201).json({ success: true, message: 'Category added successfully' });
             });
@@ -231,10 +231,10 @@ const createproduct = async (req, res) => {
               
               try {
                 const { category } = req.body;
-                const catImage = req.file ? req.file.filename : null;
+                const image = req.file ? req.file.filename : null;
                 const categoryId = req.params.id;
                 
-                await Dashboard.updatecategory(categoryId, category, catImage /* other category fields */);
+                await Dashboard.updatecategory(categoryId, category, image /* other category fields */);
                 
                 res.status(200).json({ success: true, message: 'Category updated successfully' });
               } catch (err) {
@@ -288,20 +288,25 @@ const createproduct = async (req, res) => {
 //.............................................Dashboard Employee.........................................................................
 
 
-        const addEmployee = async (req, res) => {
-          try {
-            // Handle file uploads and request data as needed
-            const { emp_name, emp_position } = req.body;
-            const emp_img = req.files ? req.files.map(file => file.filename) : null;
-        
-            await Dashboard.addEmployee(emp_name, emp_img, emp_position);
-        
-            res.status(201).json({ success: true, message: 'Employee added successfully' });
-          } catch (err) {
-            console.error(err);
-            res.status(400).json({ success: false, error: 'Employee added failed' });
-          }
-        };
+const addEmployee = async (req, res) => {
+  try {
+    upload(req, res, async function (err) {
+      if (err) {
+        return res.status(400).json({ success: false, error: err.message });
+      }
+
+      const { emp_name, emp_position } = req.body;
+      const image = req.file ? req.file.filename : null;
+
+      await Dashboard.addEmployee(emp_name, image, emp_position);
+
+      res.status(201).json({ success: true, message: 'Employee added successfully' });
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ success: false, error: 'Employee added failed' });
+  }
+};
         
 
 
@@ -334,20 +339,32 @@ const createproduct = async (req, res) => {
 
 
 
-        const updateEmployee = async (req, res) => {
+        const updateEmployee = async (req, res, next) => {
           try {
-            const employeeId = req.params.id;
-            const { emp_name, emp_position } = req.body;
-            const emp_img = req.file ? req.file.filename : null;
+            upload(req, res, async function (err) {
+              if (err) {
+                return res.status(400).json({ success: false, error: err.message });
+              }
         
-            await Dashboard.updateEmployee(employeeId, emp_name, emp_img, emp_position);
+              try {
+                const employeeId = req.params.id;
+                const { emp_name, emp_position } = req.body;
+                const image = req.file ? req.file.filename : null;
         
-            res.status(200).json({ success: true, message: 'Employee updated successfully' });
+                await Dashboard.updateEmployee(employeeId, emp_name, image, emp_position);
+        
+                res.status(200).json({ success: true, message: 'Employee updated successfully' });
+              } catch (err) {
+                console.error(err);
+                res.status(500).json({ success: false, error: 'Error updating employee' });
+              }
+            });
           } catch (err) {
             console.error(err);
-            res.status(500).json({ success: false, error: 'Error updating employee' });
+            res.status(400).json({ success: false, error: 'Employee update failed' });
           }
         };
+        
 
 
 

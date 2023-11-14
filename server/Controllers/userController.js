@@ -52,7 +52,7 @@ async function login(req, res){
                     } else if (result) {
                         const accessToken = jwt.sign({id : value.id, username : value.username, email : value.email},process.env.SECRET_KEY, {expiresIn: '7d'});
                         res.cookie('token', accessToken, { httpOnly: true });
-                        res.status(200).json(accessToken);
+                        res.status(200).json({value,accessToken});
                     } else {
                         res.status(400).json('incorrect password');
                     }

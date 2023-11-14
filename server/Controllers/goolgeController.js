@@ -55,7 +55,7 @@ function isLoggedIn(req, res, next) {
   
             const secretKey = process.env.SECRET_KEY;
             const token = jwt.sign(payload, secretKey, { expiresIn: "7d" });
-            res.status(200).json({
+            res.status(200).json({id,username,email,
               message: "User logged in successfully",
               token: token,
             });

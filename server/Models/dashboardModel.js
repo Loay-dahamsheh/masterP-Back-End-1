@@ -44,7 +44,7 @@ Dashboard.createproduct = async (product_name,product_detail,image ,price,counts
     //retrieve all product are not deleted
       Dashboard.allproducts = async () => {
         try {
-            const result = await db.query('SELECT products.id, products.product_name, products.product_detail,products.image,categories.category ,products.price,products.counts FROM products inner join categories on categories.id= products.category_id  where is_deleted = false;');
+            const result = await db.query('SELECT products.id, products.product_name, products.product_detail,products.image,categories.category ,products.price,products.counts FROM products inner join categories on categories.id= products.category_id  where products.is_deleted = false;');
             return result.rows;
           } catch (err) {
             throw err;
@@ -64,9 +64,9 @@ Dashboard.createproduct = async (product_name,product_detail,image ,price,counts
 
 
 
-      Dashboard.createCategory = async (category, catImage /* other category fields */) => {
+      Dashboard.createCategory = async (category, image /* other category fields */) => {
         try {
-          const imageUrlString = JSON.stringify(catImage);
+          const imageUrlString = JSON.stringify(image);
           const result = await db.query('INSERT INTO categories (category, cat_image /* other category fields */) VALUES ($1, $2 /* other values */) RETURNING *', [category, imageUrlString /* other values */]);
           return result.rows;
         } catch (err) {
@@ -89,9 +89,9 @@ Dashboard.createproduct = async (product_name,product_detail,image ,price,counts
       
 
 
-      Dashboard.updatecategory = async (categoryId, category, catImage /* other category fields */) => {
+      Dashboard.updatecategory = async (categoryId, category, image /* other category fields */) => {
         try {
-          const imageUrlString = JSON.stringify(catImage);
+          const imageUrlString = JSON.stringify(image);
           const result = await db.query('UPDATE categories SET category=$1, cat_image=$2 /* other category fields */ WHERE id=$3', [category, imageUrlString /* other values */, categoryId]);
           return result.rows;
         } catch (err) {
@@ -131,9 +131,9 @@ Dashboard.createproduct = async (product_name,product_detail,image ,price,counts
 
 
 
-      Dashboard.addEmployee = async (emp_name, emp_img, emp_position) => {
+      Dashboard.addEmployee = async (emp_name, image, emp_position) => {
         try {
-          const empImgString = JSON.stringify(emp_img);
+          const empImgString = JSON.stringify(image);
           const result = await db.query('INSERT INTO employees (emp_name, emp_img, emp_position) VALUES ($1, $2, $3)', [emp_name, empImgString, emp_position]);
           return result.rows;
         } catch (error) {
@@ -155,9 +155,9 @@ Dashboard.createproduct = async (product_name,product_detail,image ,price,counts
 
 
 
-      Dashboard.updateEmployee = async (employeeId, emp_name, emp_img, emp_position) => {
+      Dashboard.updateEmployee = async (employeeId, emp_name, image, emp_position) => {
         try {
-          const empImgString = JSON.stringify(emp_img);
+          const empImgString = JSON.stringify(image);
           const query = 'UPDATE employees SET emp_name=$1, emp_img=$2, emp_position=$3 WHERE id=$4';
           await db.query(query, [emp_name, empImgString, emp_position, employeeId]);
         } catch (error) {
