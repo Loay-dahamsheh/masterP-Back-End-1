@@ -8,6 +8,7 @@ const middleware = require("../Middleware/authorization")
 
 router.get('/userInfo' ,middleware.authorize, userProfileController.information);
 router.post('/adduserimage',middleware.authorize,userProfileController.userimage);
+router.put('/updateuserimage', middleware.authorize, userProfileController.updateUserImage);
 router.get('/wishlist', userProfileController.wishlist);
 router.get('/history',middleware.authorize, userProfileController.history);
 router.post('/addwishlist/:id', userProfileController.addtowishlist);

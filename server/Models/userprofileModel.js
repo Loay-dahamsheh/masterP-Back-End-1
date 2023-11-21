@@ -31,6 +31,21 @@ async function getInformation(userID){
 
 
 
+async function updateUserImage(userID, image, /* other category fields */) {
+    try {
+      const imageUrlString = JSON.stringify(image);
+      const result = await db.query('UPDATE users SET user_image=$1 WHERE id=$2', [imageUrlString, userID]);
+      // Update other category fields in the same way if needed
+  
+      return result.rows;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
+
+
 async function getWishlist(id){
     try{
         const query = `SELECT witchlist.created_at, products.price,witchlist.id, products.product_name
@@ -114,6 +129,7 @@ async function off(id){
 module.exports = {
     getInformation,
     createimage,
+    updateUserImage,
     getWishlist,
     getHistory,
     addwish,
