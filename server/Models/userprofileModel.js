@@ -1,15 +1,31 @@
 const { query } = require('express');
 const db = require('../config');
 
-async function getInformation(id){
+async function getInformation(userID){
     try{
         console.log(4545455454);
-        const query = `select username, email from users where id = $1`;
-        const User = await db.query(query, [id]);
+        const query = `select username, email, phone_number from users where id = $1`;
+        const User = await db.query(query, [userID]);
         console.log(User.rows[0]);
         return User.rows[0];
     }catch(error){
        return error;
+    }
+};
+
+
+
+
+ async function createimage(userID,image){
+
+  try{
+    const imageUrlString = JSON.stringify(image);
+    const result = await db.query('UPDATE users SET user_image=$1 WHERE id=$2', [imageUrlString, userID]);
+    return result.rows;
+  }
+    catch (error) {
+        console.log(error);
+        throw error;
     }
 };
 
@@ -31,10 +47,10 @@ async function getWishlist(id){
 
 
 
-async function getHistory(id){
+async function getHistory(userID){
     try{
         const query = `select * , products.product_name from shopping_cart inner join products on products.id = shopping_cart.product_id where user_id = $1`;
-        const history = await db.query(query, [id]);
+        const history = await db.query(query, [userID]);
         return history.rows;
     }catch(error){
         res.status(500).json(error);
@@ -56,10 +72,10 @@ async function addwish(userID,productID){
 };
 
 
-async function editInfo(id, username, email){
+async function editInfo(id, username, email, phone_number, hashPassword){
     try{
-        const query = `UPDATE users SET username = $1, email = $2 WHERE id = $3 RETURNING username, email`;
-        const newdata = await db.query(query, [username, email, id]);
+        const query = `UPDATE users SET username = $1, email = $2, phone_number = $3, password = $4 WHERE id = $5 RETURNING username, email, phone_number, password`;
+        const newdata = await db.query(query, [username, email, phone_number,hashPassword, id]);
         return newdata.rows[0];
     }catch(error){
         if (error.code == 23505){
@@ -97,6 +113,7 @@ async function off(id){
 
 module.exports = {
     getInformation,
+    createimage,
     getWishlist,
     getHistory,
     addwish,

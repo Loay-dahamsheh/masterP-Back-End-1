@@ -57,3 +57,7 @@ app.use(googleRoute);
 app.listen(port, ()=> {
     console.log(`server runnning in port ${port}`);
 })
+
+
+
+module.exports = app;

@@ -26,6 +26,8 @@ router.put('/dashboard/employee/update/:id', dashboardController.updateEmployee)
 router.put('/dashboard/employee/delete/:id', dashboardController.deleteemployee);
 router.get('/dashboard/allemployees', dashboardController.getAllEmployees);
 
+router.get('/getallusers', dashboardController.getallusers);
+router.put('/delete/:userId', dashboardController.updateusers);
 
 
 module.exports = router;

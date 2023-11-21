@@ -42,9 +42,10 @@ Dashboard.createproduct = async (product_name,product_detail,image ,price,counts
       };
 
     //retrieve all product are not deleted
-      Dashboard.allproducts = async () => {
+      Dashboard.allproducts = async (page, limit) => {
         try {
-            const result = await db.query('SELECT products.id, products.product_name, products.product_detail,products.image,categories.category ,products.price,products.counts FROM products inner join categories on categories.id= products.category_id  where products.is_deleted = false;');
+            const offset = (page - 1) * limit;
+            const result = await db.query(`SELECT products.id, products.product_name, products.product_detail,products.image,categories.category ,products.price,products.counts FROM products inner join categories on categories.id= products.category_id  where products.is_deleted = false ORDER BY products.id LIMIT $1 OFFSET $2;`, [limit, offset]);
             return result.rows;
           } catch (err) {
             throw err;
@@ -189,6 +190,45 @@ Dashboard.createproduct = async (product_name,product_detail,image ,price,counts
           throw error;
         }
       };
+
+
+
+
+
+
+
+      Dashboard.Users = async  () => {
+        try{
+        const result = await db.query('SELECT * FROM users');
+                return result.rows;
+        }
+        catch (error) {
+            throw error;
+      }
+    }
+
+
+
+
+      Dashboard.deleteUser = async(id) => {
+      try{
+          // console.log("gfgfg");
+          const whatis = await db.query('select * from users where id = $1', [id]);
+          // console.log(whatis.rows[0].is_deleted);
+          if (whatis.rows[0].is_deleted == false) {
+          await db.query('UPDATE users SET is_deleted = true WHERE id = $1', [id]);
+          }else {
+          await db.query('UPDATE users SET is_deleted = false WHERE id = $1', [id]);
+          }
+          return { message: 'User updated successfully' };
+          // return 'done';
+      }
+      
+      catch (error) {
+          throw error;
+    }
+  }
+  
 
 
 module.exports = Dashboard;

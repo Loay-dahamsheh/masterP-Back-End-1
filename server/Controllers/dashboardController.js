@@ -130,7 +130,10 @@ const createproduct = async (req, res) => {
       const allproducts = async (req, res, next) => {
     
         try {
-          const product = await Dashboard.allproducts();
+          const page = parseInt(req.query.page) || 1;
+          const limit = parseInt(req.query.limit) || 4;
+
+          const product = await Dashboard.allproducts(page, limit);
       
           const modifiedResponse = {
             product: product.map(item => {
@@ -413,6 +416,35 @@ const addEmployee = async (req, res) => {
         };
 
 
+
+
+//.............................................Dashboard users.........................................................................
+
+async function getallusers(req, res) {
+  try {
+    const users = await Dashboard.Users();
+    res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(401).json('error in getallusers controller');
+  }
+}
+
+
+
+async function updateusers(req, res) {
+  try {
+      const userId = req.params.userId;
+      // console.log(userId);
+      // const newData = req.body;
+      const result = await Dashboard.deleteUser(userId);
+    res.status(200).json({ message: 'User updated successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(401).json('error in updateusers controller');
+  }
+}
+
     module.exports = {
         createproduct,
         productdetail,
@@ -432,6 +464,10 @@ const addEmployee = async (req, res) => {
         getEmployeeDetails,
         updateEmployee,
         deleteemployee,
-        getAllEmployees
+        getAllEmployees,
+
+
+        getallusers,
+        updateusers,
 
       };

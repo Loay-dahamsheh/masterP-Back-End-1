@@ -1,6 +1,36 @@
 const userProfileModel = require('../Models/userprofileModel');
 const Joi = require('joi');
 require('dotenv').config();
+const bcrypt = require('bcrypt');
+var multer  = require('multer');
+const path = require('path');
+const bodyParser = require('body-parser');
+
+
+
+
+
+
+const storage = multer.diskStorage({
+    destination: 'C:/Users/Orange/Desktop/masterP-Back-End 1/client/src/assets/uploads', 
+    filename: function (req, file, cb) {
+      cb(null, 'image-' + Date.now() + path.extname(file.originalname));
+    }
+  });
+  
+  const upload = multer({
+    storage: storage,
+    fileFilter: function (req, file, cb) {
+      if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
+        return cb(new Error('Please upload a valid image file'));
+      }
+      cb(null, true);
+    }
+  }).single('image'); 
+
+
+
+
 
 const schema = Joi.object({
     username : Joi.string().alphanum().min(3).max(10).required(),
@@ -19,8 +49,8 @@ function validation(username = "anything", email = "anything", password = "anyth
 
 async function information(req, res){
     try{
-        //  const userID = req.user.id;
-        const userID = 10;
+         const userID = req.user.id;
+        // const userID = 10;
         const theUser = await userProfileModel.getInformation(userID);
         res.status(200).json(theUser);
     } catch(error){
@@ -31,9 +61,34 @@ async function information(req, res){
 
 
 
+const userimage = async (req, res) => {
+    try {
+        const userID = req.user.id;
+        // console.log(userID)
+      upload(req, res, async function (err) {
+        if (err) {
+          return res.status(400).json({ success: false, error: err.message });
+        }
+        
+        const { /* other category fields */ } = req.body;
+        const image = req.file ? req.file.filename : null;
+        
+        await userProfileModel.createimage(userID,image /* other category fields */);
+    
+        res.status(201).json({ success: true, message: 'Category added successfully' });
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ success: false, error: 'Category added failed' });
+    }
+  };
+
+
+
 async function wishlist(req, res){
     try{
-        const userID = 10;
+        const userID = req.user.id;
+        // const userID = 10;
         const wishlist = await userProfileModel.getWishlist(userID);
         res.status(200).json(wishlist);
     } catch(error){
@@ -44,7 +99,9 @@ async function wishlist(req, res){
 
 async function history(req, res){
     try{
-        const userID = 10;
+        const userID = req.user.id;
+        // console.log(userID);
+        // const userID = 10;
         const history = await userProfileModel.getHistory(userID);
         res.status(200).json(history);
     } catch(error){
@@ -70,11 +127,12 @@ async function addtowishlist(req, res){
 
 async function editInformation(req, res){
     try{
-        const {username, email} = req.body;
-        const userID = 10;
-        let newData = validation(username, email);
+        const {username, email, phone_number, password} = req.body;
+        const userID = req.user.id;
+        let newData = validation(username, email, phone_number, password);
         if (newData){
-            const newuser = await userProfileModel.editInfo(userID, username, email);
+            const hashPassword = await bcrypt.hash(password, 10);
+            const newuser = await userProfileModel.editInfo(userID, username, email, phone_number, hashPassword);
             res.status(200).json(newuser);
         }else {
             res.status(400).json("invalid inputs");
@@ -115,6 +173,7 @@ async function logout(req, res){
 
 module.exports = {
     information,
+    userimage,
     wishlist,
     history,
     addtowishlist,
