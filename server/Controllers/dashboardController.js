@@ -422,7 +422,12 @@ const addEmployee = async (req, res) => {
 
 async function getallusers(req, res) {
   try {
-    const users = await Dashboard.Users();
+    const page = parseInt(req.query.page, 10) || 1;
+      const pageSize = parseInt(req.query.pageSize, 10) || 10;
+
+      // Calculate the offset based on page and pageSize
+      const offset = (page - 1) * pageSize;
+    const users = await Dashboard.Users(offset, pageSize);
     res.status(200).json(users);
   } catch (error) {
     console.error(error);

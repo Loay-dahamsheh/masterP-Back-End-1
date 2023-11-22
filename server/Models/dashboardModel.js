@@ -197,9 +197,10 @@ Dashboard.createproduct = async (product_name,product_detail,image ,price,counts
 
 
 
-      Dashboard.Users = async  () => {
+      Dashboard.Users = async  (offset, pageSize) => {
         try{
-        const result = await db.query('SELECT * FROM users');
+          
+        const result = await db.query('SELECT * FROM users LIMIT $1 OFFSET $2', [offset, pageSize]);
                 return result.rows;
         }
         catch (error) {
