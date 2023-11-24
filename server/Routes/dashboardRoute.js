@@ -28,6 +28,8 @@ router.get('/dashboard/allemployees', dashboardController.getAllEmployees);
 
 router.get('/getallusers', dashboardController.getallusers);
 router.put('/delete/:userId', dashboardController.updateusers);
+router.post('/registerAdmin', dashboardController.registerAdmin);
+
 
 
 module.exports = router;

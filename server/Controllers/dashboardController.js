@@ -2,6 +2,11 @@ const Dashboard = require('../Models/dashboardModel');
 var multer  = require('multer');
 const path = require('path');
 const bodyParser = require('body-parser');
+// const user = require('../Models/dashboardModel');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const Joi = require('joi');
+require('dotenv').config();
 
 
 const storage = multer.diskStorage({
@@ -450,6 +455,47 @@ async function updateusers(req, res) {
   }
 }
 
+
+
+
+
+const adminSchema = Joi.object({
+  username: Joi.string().alphanum().min(3).max(10).required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
+  phone_number: Joi.string().optional(),
+});
+
+// Validation function for admin registration
+function adminValidation(username, email, password) {
+  const valid = adminSchema.validate({ username, email, password });
+  return valid.error === undefined;
+}
+
+// Function to register a new admin
+async function registerAdmin(req, res) {
+  try {
+      const { username, email, password, phone_number } = req.body;
+      const valid = adminValidation(username, email, password);
+
+      if (valid) {
+          const hashPassword = await bcrypt.hash(password, 10);
+          const add =  Dashboard.addAdmin(username, email, hashPassword, phone_number, 2); // 2 is the role_id for admin
+          add.then((result) => {
+              res.status(201).json("Admin added successfully");
+          }).catch((error) => {
+              res.status(400).json(error.detail);
+          });
+      } else {
+          res.status(400).json({ error: "Values are not valid or one is missing" });
+      }
+  } catch (error) {
+    console.log(error)
+      res.status(501).json(error);
+  }
+}
+
+
     module.exports = {
         createproduct,
         productdetail,
@@ -474,5 +520,6 @@ async function updateusers(req, res) {
 
         getallusers,
         updateusers,
+        registerAdmin
 
       };

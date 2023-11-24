@@ -232,6 +232,21 @@ Dashboard.createproduct = async (product_name,product_detail,image ,price,counts
   
 
 
+  Dashboard.addAdmin = async(username, email, hashPassword, phone_number, role_id) => {
+    try{
+      
+    const query = `INSERT INTO users (username, email, password, phone_number, role_id) 
+                    VALUES ($1, $2, $3, $4, $5)
+                    RETURNING id`;
+    const values = [username, email, hashPassword, phone_number, role_id];
+    return await db.query(query, values);
+}
+catch (error) {
+  throw error;
+}
+  }
+
+
 module.exports = Dashboard;
 
 
