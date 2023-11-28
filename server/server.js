@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 
 const session = require('express-session');
 const passport = require('passport');
@@ -38,6 +39,7 @@ app.use(cookieParser());
 app.use(session({ secret: "cats", resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(userRouter);
 app.use(dashboardRoute);

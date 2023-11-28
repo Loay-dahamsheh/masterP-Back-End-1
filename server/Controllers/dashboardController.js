@@ -9,22 +9,38 @@ const Joi = require('joi');
 require('dotenv').config();
 
 
+// Storage Image By Multer Start
+let lastFileSequence = 0;
 const storage = multer.diskStorage({
-  destination: 'C:/Users/Orange/Desktop/masterP-Back-End 1/client/src/assets/uploads', 
-  filename: function (req, file, cb) {
-    cb(null, 'image-' + Date.now() + path.extname(file.originalname));
-  }
+  destination: function (req, file, cb) {
+    cb(null, 'uploads');
+  },
+  filename: (req, file, cb) => {
+    lastFileSequence++;
+    const newFileName = `${Date.now()}_${lastFileSequence}${path.extname(file.originalname)}`;
+    cb(null, newFileName);
+  },
 });
 
-const upload = multer({
-  storage: storage,
-  fileFilter: function (req, file, cb) {
-    if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
-      return cb(new Error('Please upload a valid image file'));
-    }
-    cb(null, true);
-  }
-}).single('image'); 
+const addImage = multer({ storage: storage });
+const imageProduct = addImage.single('image');
+
+// const storage = multer.diskStorage({
+//   destination:  
+//   filename: function (req, file, cb) {
+//     cb(null, 'image-' + Date.now() + path.extname(file.originalname));
+//   }
+// });
+// //client\src\assets\uploads  C:\Users\Orange\Desktop\New-wave\client\src\assets\uploads
+// const upload = multer({
+//   storage: storage,
+//   fileFilter: function (req, file, cb) {
+//     if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
+//       return cb(new Error('Please upload a valid image file'));
+//     }
+//     cb(null, true);
+//   }
+// }).single('image'); 
 
 
 //.............................................Dashboard product.........................................................................
@@ -33,19 +49,21 @@ const upload = multer({
 
 const createproduct = async (req, res) => {
     try {
-      upload(req, res, async function (err) {
-        if (err) {
-          return res.status(400).json({ success: false, error: err.message });
-        }
-        
+      // upload(req, res, async function (err) {
+      //   if (err) {
+      //     return res.status(400).json({ success: false, error: err.message });
+      //   }
+
+        const image = req.file.filename
+
         const { product_name, product_detail, price, counts, category_id } = req.body;
-        const image = req.file ? req.file.filename : null;
+        // const image = req.file ? req.file.filename : null;
         
     
         await Dashboard.createproduct(product_name, product_detail, image, price, counts, category_id);
     
         res.status(201).json({ success: true, message: 'Product added successfully' });
-      });
+      // });
     } catch (err) {
       console.error(err);
       res.status(400).json({ success: false, error: 'Product added failed' });
@@ -149,7 +167,8 @@ const createproduct = async (req, res) => {
                 category: item.category,
                 images: JSON.parse(item.image), 
                 price: item.price,
-                counts: item.counts
+                counts: item.counts,
+                image_url: `http://localhost:3001/uploads/${JSON.parse(item.image)}`
               };
             })
           };
@@ -185,18 +204,18 @@ const createproduct = async (req, res) => {
 
         const createcategory = async (req, res) => {
           try {
-            upload(req, res, async function (err) {
-              if (err) {
-                return res.status(400).json({ success: false, error: err.message });
-              }
+            // upload(req, res, async function (err) {
+            //   if (err) {
+            //     return res.status(400).json({ success: false, error: err.message });
+            //   }
               
               const { category, /* other category fields */ } = req.body;
-              const image = req.file ? req.file.filename : null;
+              // const image = req.file ? req.file.filename : null;
               
               await Dashboard.createCategory(category, image /* other category fields */);
           
               res.status(201).json({ success: true, message: 'Category added successfully' });
-            });
+            // });
           } catch (err) {
             console.error(err);
             res.status(400).json({ success: false, error: 'Category added failed' });
@@ -282,6 +301,7 @@ const createproduct = async (req, res) => {
                   name: item.category,
                   images: JSON.parse(item.cat_image), // Assuming cat_image is a JSON string containing image filenames
                   // Add other category details here if needed
+                  image_url: `http://localhost:3001/uploads/${JSON.parse(item.cat_image)}`
                 };
               })
             };
@@ -298,18 +318,18 @@ const createproduct = async (req, res) => {
 
 const addEmployee = async (req, res) => {
   try {
-    upload(req, res, async function (err) {
-      if (err) {
-        return res.status(400).json({ success: false, error: err.message });
-      }
+    // upload(req, res, async function (err) {
+    //   if (err) {
+    //     return res.status(400).json({ success: false, error: err.message });
+    //   }
 
       const { emp_name, emp_position } = req.body;
-      const image = req.file ? req.file.filename : null;
+      // const image = req.file ? req.file.filename : null;
 
       await Dashboard.addEmployee(emp_name, image, emp_position);
 
       res.status(201).json({ success: true, message: 'Employee added successfully' });
-    });
+    // });
   } catch (err) {
     console.error(err);
     res.status(400).json({ success: false, error: 'Employee added failed' });
@@ -408,7 +428,8 @@ const addEmployee = async (req, res) => {
                   id: item.id,
                   name: item.emp_name,
                   image: JSON.parse(item.emp_img), 
-                  position: item.emp_position
+                  position: item.emp_position,
+                  image_url: `http://localhost:3001/uploads/${JSON.parse(item.emp_img)}`
                 };
               })
             };
@@ -520,6 +541,7 @@ async function registerAdmin(req, res) {
 
         getallusers,
         updateusers,
-        registerAdmin
+        registerAdmin,
+        imageProduct
 
       };
