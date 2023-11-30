@@ -1,6 +1,6 @@
 # Getting Started with Create React App
 
--[organization link](https://github.com/ORG-master-piece/ORG-master-piece)
+- [organization link](https://github.com/ORG-master-piece/ORG-master-piece)
 
 - [wireframe & MockUp](https://www.figma.com/file/VOW9OOgB4LMQeP23qELBRi/Untitled?type=design&node-id=2%3A4130&mode=design&t=AVvywS5ip1Ci2fDg-1)
 
